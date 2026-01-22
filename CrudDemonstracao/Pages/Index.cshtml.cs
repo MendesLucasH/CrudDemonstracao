@@ -7,7 +7,6 @@ namespace CrudDemonstracao.Pages
     {
         public void OnGet()
         {
-
         }
     }
 }
