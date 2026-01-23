@@ -28,7 +28,25 @@
                                 <tr>
                                     <td class="ps-3">@cliente.Id</td>
                                     <td>@cliente.Nome</td>
-                                    <td>@cliente.CpfCnpj</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(cliente.CpfCnpj)) //fiz um replaceinho para mostrar o CPF e o CNPJ com uma mascara bonitinha
+                                        {
+                                            var documento = cliente.CpfCnpj.Replace(".", "").Replace("-", "").Replace("/", "");
+
+                                            if (documento.Length <= 11) // CPF
+                                            {
+                                                @documento.Insert(3, ".").Insert(7, ".").Insert(11, "-")
+                                            }
+                                            else if (documento.Length == 14) // CNPJ
+                                            {
+                                                @documento.Insert(2, ".").Insert(6, ".").Insert(10, "/").Insert(15, "-")
+                                            }
+                                            else
+                                            {
+                                                @cliente.CpfCnpj
+                                            }
+                                        }
+                                    </td>
                                     <td>@cliente.Email</td>
                                     <td class="text-center">
                                         <a href="#" class="btn btn-sm btn-outline-primary">Editar</a>
