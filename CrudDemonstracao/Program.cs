@@ -1,4 +1,6 @@
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("MySqlConexao");
+CrudDemonstracao.Data.Db.ConnectionString = connectionString;
 
 // Add services to the container.
 builder.Services.AddRazorPages();

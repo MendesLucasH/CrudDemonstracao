@@ -1,0 +1,51 @@
+﻿/*Tive que fazer isso para a SideBar ficar no lado direito e cobrir toda o canto*/
+.sidebar {
+    width: 220px;
+    min-height: 100vh;
+    padding: 16px;
+}
+
+.content {
+    width: 100%;
+    background-color: #f8f9fa; 
+    min-height: 100vh;
+}
+
+.app {
+    display: flex; 
+    width: 100%;
+    min-height: 100vh; 
+    overflow-x: hidden; 
+}
+
+.sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    min-height: 100vh;
+    background-color: #0d2a52; 
+    color: white;
+    transition: all 0.3s;
+}
+
+.content {
+    flex-grow: 1;
+    width: 100%;
+    padding: 20px;
+    background-color: #f8f9fa; 
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: white;
+    padding: 10px 15px;
+    display: block;
+    border-radius: 4px;
+}
+    .sidebar a:hover {
+        background-color: rgba(255, 255, 255, 0.1); 
+    }
