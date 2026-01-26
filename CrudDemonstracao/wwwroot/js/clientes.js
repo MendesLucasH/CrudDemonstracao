@@ -45,3 +45,14 @@ function confirmarExclusao(event, form) {
         }
     });
 }
+
+$(document).ready(function () {
+    $("#inputPesquisa").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+
+        $("table tbody tr").filter(function () {
+            // Isso faz a busca olhar para o Nome e para o CPF/CNPJ ao mesmo tempo
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+});

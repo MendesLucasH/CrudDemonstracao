@@ -21,14 +21,17 @@
                     <div class="row mb-3">
                         <div class="col-md-3">
                             <label class="small fw-bold text-secondary">Tipo Pessoa:</label>
-                            <select asp-for="NovoCliente.TipoPessoa" class="form-select" id="selectTipo">
+                            <select asp-for="NovoCliente.TipoPessoa" class="form-select"
+                                    disabled="@(Model.NovoCliente?.Id > 0)">
                                 <option value="PF">Pessoa Física</option>
                                 <option value="PJ">Pessoa Jurídica</option>
                             </select>
                         </div>
                         <div class="col-md-5">
                             <label class="small fw-bold text-secondary">CPF / CNPJ *:</label>
-                            <input asp-for="NovoCliente.CpfCnpj" class="form-control" id="campoCpf" placeholder="Apenas números" required />
+                            <input asp-for="NovoCliente.CpfCnpj" class="form-control" id="campoCpf"
+                                   readonly="@(Model.NovoCliente?.Id > 0)"
+                                   style="@(Model.NovoCliente?.Id > 0 ? "background-color:#e9ecef;" : "")" />
                             <span asp-validation-for="NovoCliente.CpfCnpj" class="text-danger small"></span>
                         </div>
                         <div class="col-md-4">
@@ -71,7 +74,14 @@
                         </div>
                         <div class="col-md-3">
                             <label class="small fw-bold text-secondary">Estado (UF):</label>
-                            <input asp-for="NovoCliente.Estado" class="form-control" maxlength="2" placeholder="SP" style="text-transform:uppercase" />
+                            <select asp-for="NovoCliente.Estado" class="form-select">
+                                <option value="">Selecione...</option>
+                                @foreach (var uf in Model.Estados)
+                                {
+                                    <option value="@uf">@uf</option>
+                                }
+                            </select>
+                            <span asp-validation-for="NovoCliente.Estado" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
@@ -86,10 +96,23 @@
 </div>
 @* Fim popUP *@
 
+
+
 <div class="container-fluid pt-4">
     <h2 class="mb-4" style="color: #444;">Cadastro de Clientes</h2>
 
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-end">
+            <div class="input-group shadow-sm" style="max-width: 400px;">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fa fa-search text-muted"></i>
+                </span>
+                <input type="text" id="inputPesquisa" class="form-control border-start-0" placeholder="Pesquisar por nome ou CPF..." />
+            </div>
+        </div>
+    </div>
     <div class="card border-0 shadow-sm mb-4">
+
         @* Girdzinha *@
         <div class="card-body p-0">
             <div class="table-responsive">
