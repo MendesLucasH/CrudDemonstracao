@@ -20,7 +20,28 @@
         };
     $('#campoCpf').mask(cpfCnpjBehavior, cpfCnpjOptions);
 
-    // 3. MÁSCARA DE CEP (Simples)
+    // 3. MÁSCARA DE CEP 
     $('#campoCep').mask('00000-000');
 
+
+   
 });
+
+function confirmarExclusao(event, form) {
+    event.preventDefault(); // Trava o envio para o C# para esperar a resposta do usuário
+
+    Swal.fire({
+        title: 'Deseja excluir este cliente?',
+        text: "Esta ação não poderá ser desfeita!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33', 
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit(); 
+        }
+    });
+}

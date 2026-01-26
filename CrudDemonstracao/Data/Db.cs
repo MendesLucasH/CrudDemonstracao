@@ -6,9 +6,9 @@ using System;
 namespace CrudDemonstracao.Data
 {
     public static class Db
-    {       
+    {
         public static string ConnectionString { get; set; } = "";
-        // LISTAR CLIENTES
+        //LISTAR PARA A GRID
         public static List<Cliente> ListarClientes()
         {
             var lista = new List<Cliente>();
@@ -26,7 +26,8 @@ namespace CrudDemonstracao.Data
                             Id = leitor.GetInt32("id"),
                             Nome = leitor.GetString("nome"),
                             CpfCnpj = leitor.GetString("cpf_cnpj"),
-                            Email = leitor.IsDBNull(leitor.GetOrdinal("email")) ? "" : leitor.GetString("email")
+                            Email = leitor.IsDBNull(leitor.GetOrdinal("email")) ? "" : leitor.GetString("email"),
+                            TipoPessoa = leitor.GetString("tipo_pessoa")
                         });
                     }
                 }
@@ -70,7 +71,7 @@ namespace CrudDemonstracao.Data
                     cmd.ExecuteNonQuery();
                 }
             }
-        }        
+        }
         //VERIFICAÇÃO PARA CASO QUEIRA CADASTRAR CLIENTE COM CPF DUPLICADO
         public static bool ExisteClienteComCpf(string cpf)
         {
@@ -84,12 +85,72 @@ namespace CrudDemonstracao.Data
                 {
                     comando.Parameters.AddWithValue("@cpf", cpf);
 
-                   
+
                     long quantidade = (long)comando.ExecuteScalar();
 
-                    return quantidade > 0; 
+                    return quantidade > 0;
                 }
             }
         }
+
+        //SELECT DE CLIENTE POR ID PARA ATUALIZAR
+        public static Cliente ObterClientePorId(int id)
+        {
+            var cliente = new Cliente();
+            using (var conn = new MySqlConnection(ConnectionString))
+            {
+                conn.Open();
+                string sql = "SELECT * FROM clientes WHERE id = @id";
+                using (var cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            cliente.Id = Convert.ToInt32(reader["id"]);
+                            cliente.Nome = reader["nome"].ToString();
+                            cliente.CpfCnpj = reader["cpf_cnpj"].ToString();
+                            cliente.Email = reader["email"].ToString();
+                            cliente.TipoPessoa = reader["tipo_pessoa"].ToString();
+                            cliente.Telefone = reader["telefone"].ToString();
+                            cliente.Endereco = reader["endereco"].ToString();
+                            cliente.Cidade = reader["cidade"].ToString();
+                            cliente.Estado = reader["estado"].ToString();
+                            cliente.Cep = reader["cep"].ToString();
+                            
+                            
+                        }
+                    }
+                }
+            }
+            return cliente;
+        }
+
+        //UPDATE 
+        public static void AtualizarCliente(Cliente c)
+        {
+            using (var conn = new MySqlConnection(ConnectionString))
+            {
+                conn.Open();                
+                string sql = "UPDATE clientes SET nome=@nome, email=@email, telefone=@tel, tipo_pessoa=@tipo, cep=@cep, endereco=@end, cidade=@cid, estado=@est WHERE id=@id";
+
+                using (var cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@nome", c.Nome);
+                    cmd.Parameters.AddWithValue("@email", c.Email ?? "");
+                    cmd.Parameters.AddWithValue("@tel", c.Telefone ?? "");
+                    cmd.Parameters.AddWithValue("@tipo", c.TipoPessoa);
+                    cmd.Parameters.AddWithValue("@cep", c.Cep ?? "");
+                    cmd.Parameters.AddWithValue("@end", c.Endereco ?? "");
+                    cmd.Parameters.AddWithValue("@cid", c.Cidade ?? "");
+                    cmd.Parameters.AddWithValue("@est", c.Estado ?? "");
+                    cmd.Parameters.AddWithValue("@id", c.Id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
     }
 }

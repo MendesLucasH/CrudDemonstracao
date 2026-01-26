@@ -4,16 +4,100 @@
     ViewData["Title"] = "Cadastro de Clientes";
 }
 
+@* Pop Up de cadastro dos clientes *@
+<div class="modal fade" id="modalCadastro" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <form method="post">
+                <div class="modal-header text-white" style="background-color: #6a1b9a;">
+                    <h5 class="modal-title">
+                        @((Model.NovoCliente?.Id > 0) ? "Editar Cliente" : "Novo Cliente")
+                    </h5>
+                    <button type="submit" class="btn-close btn-close-white" asp-page-handler="Cancelar" formnovalidate aria-label="Close"></button>
+                </div>
+                <input type="hidden" asp-for="NovoCliente.Id" />
+
+                <div class="modal-body bg-light">
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label class="small fw-bold text-secondary">Tipo Pessoa:</label>
+                            <select asp-for="NovoCliente.TipoPessoa" class="form-select" id="selectTipo">
+                                <option value="PF">Pessoa Física</option>
+                                <option value="PJ">Pessoa Jurídica</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="small fw-bold text-secondary">CPF / CNPJ *:</label>
+                            <input asp-for="NovoCliente.CpfCnpj" class="form-control" id="campoCpf" placeholder="Apenas números" required />
+                            <span asp-validation-for="NovoCliente.CpfCnpj" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small fw-bold text-secondary">Telefone:</label>
+                            <input asp-for="NovoCliente.Telefone" class="form-control" id="campoTelefone" placeholder="(00) 00000-0000" />
+                            <span asp-validation-for="NovoCliente.Telefone" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-7">
+                            <label class="small fw-bold text-secondary">Nome Completo *:</label>
+                            <input asp-for="NovoCliente.Nome" class="form-control" required />
+                            <span asp-validation-for="NovoCliente.Nome" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="small fw-bold text-secondary">E-mail:</label>
+                            <input asp-for="NovoCliente.Email" class="form-control" type="email" />
+                            <span asp-validation-for="NovoCliente.Email" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4 text-muted" />
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label class="small fw-bold text-secondary">CEP:</label>
+                            <input asp-for="NovoCliente.Cep" class="form-control" id="campoCep" />
+                        </div>
+                        <div class="col-md-9">
+                            <label class="small fw-bold text-secondary">Endereço (Rua, Nº, Bairro):</label>
+                            <input asp-for="NovoCliente.Endereco" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-9">
+                            <label class="small fw-bold text-secondary">Cidade:</label>
+                            <input asp-for="NovoCliente.Cidade" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small fw-bold text-secondary">Estado (UF):</label>
+                            <input asp-for="NovoCliente.Estado" class="form-control" maxlength="2" placeholder="SP" style="text-transform:uppercase" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-white">
+                    <button type="submit" asp-page-handler="SalvarCliente" class="btn text-white px-4" style="background-color: #003366;">Salvar Cliente</button>
+                    <button type="submit" asp-page-handler="Cancelar" class="btn btn-secondary" formnovalidate>Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@* Fim popUP *@
+
 <div class="container-fluid pt-4">
     <h2 class="mb-4" style="color: #444;">Cadastro de Clientes</h2>
 
     <div class="card border-0 shadow-sm mb-4">
+        @* Girdzinha *@
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover mb-0 align-middle">
                     <thead style="background-color: #6a1b9a; color: white;">
                         <tr>
                             <th scope="col" class="ps-3">ID</th>
+                            <th scope="col">Tipo</th>
                             <th scope="col">Nome</th>
                             <th scope="col">CPF/CNPJ</th>
                             <th scope="col">E-mail</th>
@@ -26,13 +110,22 @@
                             @foreach (var cliente in Model.ListaClientes)
                             {
                                 <tr>
-                                    <td class="ps-3">@cliente.Id</td>
-                                    <td>@cliente.Nome</td>
+                                    <td class="ps-3 text-muted">@cliente.Id</td>
                                     <td>
-                                        @if (!string.IsNullOrEmpty(cliente.CpfCnpj)) //fiz um replaceinho para mostrar o CPF e o CNPJ com uma mascara bonitinha
+                                        @if (cliente.TipoPessoa != null && cliente.TipoPessoa.Trim().ToUpper() == "PF")
+                                        {
+                                            <span class="badge rounded-pill bg-info text-dark">PF</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill bg-warning text-dark">PJ</span>
+                                        }
+                                    </td>
+                                    <td class="fw-bold">@cliente.Nome</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(cliente.CpfCnpj))
                                         {
                                             var documento = cliente.CpfCnpj.Replace(".", "").Replace("-", "").Replace("/", "");
-
                                             if (documento.Length <= 11) // CPF
                                             {
                                                 @documento.Insert(3, ".").Insert(7, ".").Insert(11, "-")
@@ -49,7 +142,19 @@
                                     </td>
                                     <td>@cliente.Email</td>
                                     <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-outline-primary">Editar</a>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <form method="post" asp-page-handler="CarregarParaEdicao">
+                                                <input type="hidden" name="id" value="@cliente.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-primary">Editar</button>
+                                            </form>
+
+                                            <form method="post" asp-page-handler="ExcluirCliente" onsubmit="return confirmarExclusao(event, this);">
+                                                <input type="hidden" name="id" value="@cliente.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                                    <i class="fa fa-trash"></i> Excluir
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -57,7 +162,8 @@
                         else
                         {
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-4">
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <i class="fa fa-users fa-2x mb-3 d-block"></i>
                                     Nenhum cliente cadastrado. Clique em "+ Novo Cliente" para começar.
                                 </td>
                             </tr>
@@ -66,101 +172,14 @@
                 </table>
             </div>
         </div>
+        @* Fim Grid *@
     </div>
 
-    <button type="button" class="btn text-white px-4 py-2" style="background-color: #003366;" data-bs-toggle="modal" data-bs-target="#modalCadastro">
+    <button type="button" class="btn text-white px-4 py-2 shadow-sm" style="background-color: #003366;" data-bs-toggle="modal" data-bs-target="#modalCadastro">
         <i class="fa fa-plus"></i> + Novo Cliente
     </button>
 </div>
 
-<div class="modal fade" id="modalCadastro" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-
-            <form method="post">
-
-                <div class="modal-header text-white" style="background-color: #6a1b9a;">
-                    <h5 class="modal-title">Novo Cliente</h5>
-
-                    <button type="submit"
-                            class="btn-close btn-close-white"
-                            asp-page-handler="Cancelar"
-                            formnovalidate
-                            aria-label="Close">
-                    </button>
-                </div>
-
-                <div class="modal-body bg-light">
-                    <div class="row mb-2">
-                        <div class="col-md-3">
-                            <label class="small font-weight-bold text-secondary">Tipo Pessoa:</label>
-                            <select asp-for="NovoCliente.TipoPessoa" class="form-select" id="selectTipo">
-                                <option value="PF">Pessoa Física</option>
-                                <option value="PJ">Pessoa Jurídica</option>
-                            </select>
-                        </div>
-                        <div class="col-md-5">
-                            <label class="small font-weight-bold text-secondary">CPF / CNPJ *:</label>
-                            <input asp-for="NovoCliente.CpfCnpj" class="form-control" id="campoCpf" placeholder="Apenas números" required />
-                            <span asp-validation-for="NovoCliente.CpfCnpj" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="small font-weight-bold text-secondary">Telefone:</label>
-                            <input asp-for="NovoCliente.Telefone" class="form-control" id="campoTelefone" placeholder="(00) 00000-0000" />
-                            <span asp-validation-for="NovoCliente.Telefone" class="text-danger small"></span>
-                        </div>
-                    </div>
-
-                    <div class="row mb-2">
-                        <div class="col-md-7">
-                            <label class="small font-weight-bold text-secondary">Nome Completo *:</label>
-                            <input asp-for="NovoCliente.Nome" class="form-control" required />
-                            <span asp-validation-for="NovoCliente.Nome" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-5">
-                            <label class="small font-weight-bold text-secondary">E-mail:</label>
-                            <input asp-for="NovoCliente.Email" class="form-control" />
-                            <span asp-validation-for="NovoCliente.Email" class="text-danger small"></span>
-                        </div>
-                    </div>
-
-                    <hr class="my-3 text-muted" />
-
-                    <div class="row mb-2">
-                        <div class="col-md-3">
-                            <label class="small font-weight-bold text-secondary">CEP:</label>
-                            <input asp-for="NovoCliente.Cep" class="form-control" id="campoCep" />
-                            <span asp-validation-for="NovoCliente.Cep" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-9">
-                            <label class="small font-weight-bold text-secondary">Endereço (Rua, Nº, Bairro):</label>
-                            <input asp-for="NovoCliente.Endereco" class="form-control" />
-                            <span asp-validation-for="NovoCliente.Endereco" class="text-danger small"></span>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-9">
-                            <label class="small font-weight-bold text-secondary">Cidade:</label>
-                            <input asp-for="NovoCliente.Cidade" class="form-control" />
-                            <span asp-validation-for="NovoCliente.Cidade" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="small font-weight-bold text-secondary">Estado (UF):</label>
-                            <input asp-for="NovoCliente.Estado" class="form-control" maxlength="2" placeholder="SP" style="text-transform:uppercase" />
-                            <span asp-validation-for="NovoCliente.Estado" class="text-danger small"></span>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer justify-content-start px-0 pb-0">
-                        <button type="submit" asp-page-handler="SalvarCliente" class="btn text-white px-4" style="background-color: #003366;">Salvar Cliente</button>
-                        <button type="submit" asp-page-handler="Cancelar" class="btn btn-secondary" formnovalidate>Cancelar</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
@@ -168,6 +187,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/clientes.js"></script>
+
 
     <script>
         $(document).ready(function () {
@@ -194,4 +214,13 @@
             }
         });
     </script>
+    @if (TempData["AbrirModalEdicao"] != null)
+    {
+        <script>
+            $(document).ready(function () {
+                var myModal = new bootstrap.Modal(document.getElementById('modalCadastro'));
+                myModal.show();
+            });
+        </script>
+    }
 }
