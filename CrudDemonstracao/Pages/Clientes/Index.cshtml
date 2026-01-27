@@ -13,7 +13,7 @@
                     <h5 class="modal-title">
                         @((Model.NovoCliente?.Id > 0) ? "Editar Cliente" : "Novo Cliente")
                     </h5>
-                    <button type="submit" class="btn-close btn-close-white" asp-page-handler="Cancelar" formnovalidate aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <input type="hidden" asp-for="NovoCliente.Id" />
 
@@ -87,7 +87,10 @@
                 </div>
 
                 <div class="modal-footer bg-white">
-                    <button type="submit" asp-page-handler="SalvarCliente" class="btn text-white px-4" style="background-color: #003366;">Salvar Cliente</button>
+                    <button type="submit" asp-page-handler="SalvarCliente" class="btn text-white px-4" style="background-color: #003366;">
+                        <i class="fa fa-save me-1"></i> Salvar Cliente
+                    </button>
+
                     <button type="submit" asp-page-handler="Cancelar" class="btn btn-secondary" formnovalidate>Cancelar</button>
                 </div>
             </form>

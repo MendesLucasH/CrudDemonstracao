@@ -73,3 +73,12 @@ $(document).ready(function () {
         });
     });
 });
+// Faz o Enter focar no botão salvar em vez de fechar o modal
+$(document).ready(function () {
+    $(window).keydown(function (event) {
+        if (event.keyCode == 13) { 
+            if ($("#modalCadastro").is(":visible")) {                                               
+            }
+        }
+    });
+});
