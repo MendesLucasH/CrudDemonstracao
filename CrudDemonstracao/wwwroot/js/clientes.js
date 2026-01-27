@@ -1,5 +1,6 @@
 ﻿$(document).ready(function () {
-    //1. MÁSCARA DE TELEFONE (Híbrida: 8 ou 9 dígitos) ***PEGUEI NA INTERNET***
+
+    // 1. MÁSCARA DE TELEFONE (Híbrida: 8 ou 9 dígitos) *PEGUEI NA INTERNETTTT*
     var behavior = function (val) {
         return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
     },
@@ -9,76 +10,108 @@
             }
         };
     $('#campoTelefone').mask(behavior, options);
-    // 2. MÁSCARA DE CPF OU CNPJ (Muda sozinha)       
-    var aplicarMascara = function (valor) {
-        var num = valor.replace(/\D/g, ''); 
+  
+    // LÓGICA DE CPF / CNPJ (SEPARADOS PELO DROPDOWN)
+  
+    function atualizarMascara() {
+        var tipo = $('#NovoCliente_TipoPessoa option:selected').text();
         var campo = $('#campoCpf');
 
-        campo.unmask(); 
+        // Remove máscara antiga para evitar conflito
+        campo.unmask();
 
-        if (num.length > 11) {
-            campo.mask('00.000.000/0000-00');
+        if (tipo.indexOf('Jurídica') >= 0 || tipo === 'PJ') {
+            // MÁSCARA CNPJ
+            campo.mask('00.000.000/0000-00', { reverse: true });
+            campo.attr('placeholder', '00.000.000/0000-00');
         } else {
-            campo.mask('000.000.000-009');
+            // MÁSCARA CPF
+            campo.mask('000.000.000-00', { reverse: true });
+            campo.attr('placeholder', '000.000.000-00');
         }
-    };
-    
-    $('#campoCpf').on('input', function () {
-        var val = $(this).val();
-        
-        if (val.length > 0) aplicarMascara(val);
+    }
+
+    // Atualiza quando muda o dropdown
+    $('#NovoCliente_TipoPessoa').change(function () {
+        $('#campoCpf').val(''); // Limpa o campo
+        atualizarMascara();
     });
 
-    $('#campoCpf').on('paste', function () {
-        var elemento = $(this);        
-        setTimeout(function () {
-            var textoColado = elemento.val();
-            aplicarMascara(textoColado);
-        }, 150);
+    // Inicializa
+    atualizarMascara();
+
+     //COLAR (PASTE) COM FORMATAÇÃO VISUAL
+    $('#campoCpf').on('paste', function (e) {
+        e.preventDefault(); // Cancela o colar nativo do navegador
+
+        var tipo = $('#NovoCliente_TipoPessoa option:selected').text();
+        var isJuridica = (tipo.indexOf('Jurídica') >= 0 || tipo === 'PJ');
+
+        //pega os números colados e limpa
+        var textoCopiado = (e.originalEvent || e).clipboardData.getData('text/plain');
+        var apenasNumeros = textoCopiado.replace(/\D/g, '');
+
+        // 2. Define o valor cortado (11 digitos se CPF, 14 se CNPJ)
+        var valorFinal;
+        if (isJuridica) {
+            valorFinal = apenasNumeros.substring(0, 14);
+        } else {
+            valorFinal = apenasNumeros.substring(0, 11);
+        }
+
+        // 3. Aplica o valor e FORÇA A FORMATAÇÃO (trigger input)
+        $(this).val(valorFinal);
+        $(this).trigger('input'); 
     });
+
+    // ============================================================
 
     // 3. MÁSCARA DE CEP 
     $('#campoCep').mask('00000-000');
 
+    // 4. PESQUISA NA TABELA ***PEGUEI NA INTERNET***
+    $("#inputPesquisa").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $("table tbody tr").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
 
-   
 });
 
+// FUNÇÃO DE EXCLUSÃO
 function confirmarExclusao(event, form) {
-    event.preventDefault(); // Trava o envio para o C# para esperar a resposta do usuário
-
+    event.preventDefault();
     Swal.fire({
         title: 'Deseja excluir este cliente?',
         text: "Esta ação não poderá ser desfeita!",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#d33', 
+        confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Sim, excluir!',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            form.submit(); 
+            form.submit();
         }
     });
 }
 
-$(document).ready(function () {
-    $("#inputPesquisa").on("keyup", function () {
-        var value = $(this).val().toLowerCase();
-
-        $("table tbody tr").filter(function () {
-            // Isso faz a busca olhar para o Nome e para o CPF/CNPJ ao mesmo tempo PEGUEI NA INTERNET**
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-        });
-    });
-});
-// Faz o Enter focar no botão salvar em vez de fechar o modal
+// Faz o Enter focar no botão salvar
 $(document).ready(function () {
     $(window).keydown(function (event) {
-        if (event.keyCode == 13) { 
-            if ($("#modalCadastro").is(":visible")) {                                               
+        if (event.keyCode == 13) {
+            if ($("#modalCadastro").is(":visible")) {
             }
         }
     });
+});
+
+$('.btn-close, .btn-secondary').on('click', function () {
+    // 1. Zera os textos ao clicar no Xzinho
+    $('#modalCadastro form').trigger('reset');
+
+    // 2. Volta o dropdown pro padrão e ajusta a máscara
+    $('#NovoCliente_TipoPessoa').val('Pessoa Física').change();
 });

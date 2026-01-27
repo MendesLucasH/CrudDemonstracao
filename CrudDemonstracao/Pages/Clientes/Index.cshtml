@@ -13,7 +13,7 @@
                     <h5 class="modal-title">
                         @((Model.NovoCliente?.Id > 0) ? "Editar Cliente" : "Novo Cliente")
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="submit" asp-page-handler="Cancelar" class="btn-close" formnovalidate aria-label="Close"></button>
                 </div>
                 <input type="hidden" asp-for="NovoCliente.Id" />
 
