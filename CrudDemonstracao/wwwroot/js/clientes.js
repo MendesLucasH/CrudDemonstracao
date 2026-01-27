@@ -9,16 +9,33 @@
             }
         };
     $('#campoTelefone').mask(behavior, options);
-    // 2. MÁSCARA DE CPF OU CNPJ (Muda sozinha)     
-    var cpfCnpjBehavior = function (val) {
-        return val.replace(/\D/g, '').length <= 11 ? '000.000.000-009' : '00.000.000/0000-00';
-    },
-        cpfCnpjOptions = {
-            onKeyPress: function (val, e, field, options) {
-                field.mask(cpfCnpjBehavior.apply({}, arguments), options);
-            }
-        };
-    $('#campoCpf').mask(cpfCnpjBehavior, cpfCnpjOptions);
+    // 2. MÁSCARA DE CPF OU CNPJ (Muda sozinha)       
+    var aplicarMascara = function (valor) {
+        var num = valor.replace(/\D/g, ''); 
+        var campo = $('#campoCpf');
+
+        campo.unmask(); 
+
+        if (num.length > 11) {
+            campo.mask('00.000.000/0000-00');
+        } else {
+            campo.mask('000.000.000-009');
+        }
+    };
+    
+    $('#campoCpf').on('input', function () {
+        var val = $(this).val();
+        
+        if (val.length > 0) aplicarMascara(val);
+    });
+
+    $('#campoCpf').on('paste', function () {
+        var elemento = $(this);        
+        setTimeout(function () {
+            var textoColado = elemento.val();
+            aplicarMascara(textoColado);
+        }, 150);
+    });
 
     // 3. MÁSCARA DE CEP 
     $('#campoCep').mask('00000-000');
@@ -51,7 +68,7 @@ $(document).ready(function () {
         var value = $(this).val().toLowerCase();
 
         $("table tbody tr").filter(function () {
-            // Isso faz a busca olhar para o Nome e para o CPF/CNPJ ao mesmo tempo
+            // Isso faz a busca olhar para o Nome e para o CPF/CNPJ ao mesmo tempo PEGUEI NA INTERNET**
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
     });
