@@ -1,0 +1,13 @@
+**/.git
+**/.gitignore
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/.idea
+**/node_modules
+**/Thumbs.db
+**/.DS_Store
+*.md
+*.sln
+*.slnx
